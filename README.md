@@ -3,3 +3,9 @@ Structured Outputs Schema Generator for OpenAI
 
 
 https://openai.com/index/introducing-structured-outputs-in-the-api/
+
+
+# Install
+
+pip install -r requirements.txt
+streamlit run main.py
