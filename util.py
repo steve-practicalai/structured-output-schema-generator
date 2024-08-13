@@ -81,14 +81,15 @@ class ProjectsManager:
             projects_data = [project.to_dict() for project in self.projects]
             json_str = json.dumps(projects_data, indent=2)
             st.download_button(
-                label="Download Projects",
+                label="Export Projects",
                 data=json_str,
                 file_name="projects.json",
                 mime="application/json"
             )
 
     def load_from_file(self):
-        uploaded_file = st.file_uploader("Choose a projects file", type="json")
+        st.text("Import Projects")
+        uploaded_file = st.file_uploader("Import Projects", label_visibility="collapsed", type="json")
         if uploaded_file is not None:
             projects_data = json.load(uploaded_file)
             loaded_projects = []
@@ -98,7 +99,9 @@ class ProjectsManager:
                 project.files = [TextFile.from_dict(file_data) for file_data in data.get('files', [])]
                 loaded_projects.append(project)
             st.session_state.projects = loaded_projects
-            st.success("Projects loaded successfully!")
+            if(loaded_projects):
+                st.session_state.active_project = loaded_projects[0]
+                st.success("Projects loaded successfully!")
 
     def append(self, project: Project):
         st.session_state.projects.append(project)

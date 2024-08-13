@@ -36,29 +36,6 @@ class SchemaField(BaseModel):
             data_type=data["data_type"]
         )
     
-class SchemaFieldResponse(BaseModel):
-    name: str
-    description: str
-    data_type: str
-    value: str 
-
-    def to_dict(self):
-        return {
-            "name": self.name,
-            "data_type": self.data_type,
-            "description": self.description,
-            "value": self.value
-        }
-
-    @classmethod
-    def from_dict(cls, data):
-        return cls(
-            name=data["name"], 
-            description=data["description"], 
-            data_type=data["data_type"], 
-            value=data.get("value")  
-        )
-
 class ResponseSchema(BaseModel):
     data_fields: List[SchemaField]
     confirmation_message: str

@@ -17,7 +17,6 @@ def initialize_session_state():
         st.session_state.creating_project = False
 
 def show_project_list():
-    st.sidebar.title("Projects")
     projects_manager = ProjectsManager()
 
     # Rest of the function remains the same
@@ -30,10 +29,8 @@ def show_project_list():
     st.session_state.active_project = selected_project
     st.session_state.creating_project = False
     
-    if st.sidebar.button("Save Projects", key=f"save_projects"):
+    with st.sidebar:
         projects_manager.save_to_file()
-
-    if st.sidebar.button("Load Projects", key=f"load_projects"):
         projects_manager.load_from_file()
 
 
@@ -159,6 +156,7 @@ def main():
     st.title("OpenAI Structured Output Schema Generator!")
 
     st.sidebar.image("https://practicalai.co.nz/content/WhiteLogo-BrandName-OnTransparent.png")
+    st.sidebar.title("Projects")
     if st.sidebar.button("Create New Project", key="create_new_project"):
         st.session_state.creating_project = True
         st.session_state.active_project = None
