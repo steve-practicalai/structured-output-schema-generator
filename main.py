@@ -20,14 +20,20 @@ def show_project_list():
     st.sidebar.title("Projects")
     projects_manager = ProjectsManager()
 
-    # Use the actual project objects for selection
+    # Add save and load buttons
+    col1, col2 = st.sidebar.columns(2)
+    with col1:
+        projects_manager.save_to_file()
+    with col2:
+        projects_manager.load_from_file()
+
+    # Rest of the function remains the same
     selected_project = st.sidebar.radio(
         "Select a project:",
         options=projects_manager.projects,
         format_func=lambda p: f"{p.title} ({p.state.value})"
     )
     
-    # Set the active project to the selected project object
     st.session_state.active_project = selected_project
     st.session_state.creating_project = False
 

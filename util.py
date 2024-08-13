@@ -1,4 +1,5 @@
 from enum import Enum
+import html
 import json
 from typing import Dict, List
 import streamlit as st
@@ -58,67 +59,44 @@ class Project:
         project.schema = ResponseSchema.from_dict(data["schema"]) if data["schema"] else None
         project.state = ProjectState(data["state"])
         return project
-    
 
 class ProjectsManager:
     def __init__(self):
-        self._initialize_local_storage()
-        if "projects" not in st.session_state:
-            st.session_state.projects = self._load_projects()
-    
-
-    def _initialize_local_storage(self):
-        st.components.v1.html(
-            """
-            <script>
-            if (!localStorage.getItem('projects')) {
-                localStorage.setItem('projects', JSON.stringify([]));
-            }
-            const projects = localStorage.getItem('projects');
-            window.parent.postMessage({type: 'SET_PROJECTS', projects: projects}, '*');
-            </script>
-            """,
-            height=0,
-        )
+        if 'projects' not in st.session_state:
+            st.session_state.projects = []
 
     @property
     def projects(self) -> List[Project]:
         return st.session_state.projects
 
-    def _load_projects(self) -> List[Project]:
-        if "projects_data" not in st.session_state:
-            return []
-        
-        projects_data = json.loads(st.session_state.projects_data)
-        return [Project.from_dict(project_data) for project_data in projects_data]
-
-    def _save_projects(self):
+    def save_to_file(self):
         projects_data = [project.to_dict() for project in self.projects]
-        projects_json = json.dumps(projects_data)
-        st.components.v1.html(
-            f"""
-            <script>
-            localStorage.setItem('projects', '{projects_json}');
-            </script>
-            """,
-            height=0,
+        json_str = json.dumps(projects_data, indent=2)
+        st.download_button(
+            label="Download Projects",
+            data=json_str,
+            file_name="projects.json",
+            mime="application/json"
         )
 
-    def __setitem__(self, key, value):
-        self.projects[key] = value
-        self._save_projects()
-
-    def __getitem__(self, key):
-        return self.projects[key]
-
-    def __delitem__(self, key: int):
-        del self.projects[key]
-        self._save_projects()
+    def load_from_file(self):
+        uploaded_file = st.file_uploader("Choose a projects file", type="json")
+        if uploaded_file is not None:
+            projects_data = json.load(uploaded_file)
+            st.session_state.projects = [Project.from_dict(data) for data in projects_data]
+            st.success("Projects loaded successfully!")
 
     def append(self, project: Project):
-        self.projects.append(project)
-        self._save_projects()
+        st.session_state.projects.append(project)
+
+    def __setitem__(self, key, value):
+        st.session_state.projects[key] = value
+
+    def __getitem__(self, key):
+        return st.session_state.projects[key]
+
+    def __delitem__(self, key: int):
+        del st.session_state.projects[key]
 
     def __len__(self):
-        return len(self.projects)
-
+        return len(st.session_state.projects)
