@@ -9,3 +9,4 @@ https://openai.com/index/introducing-structured-outputs-in-the-api/
 
 pip install -r requirements.txt
 streamlit run main.py
+add OPENAI_API_KEY to .env

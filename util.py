@@ -10,14 +10,19 @@ class ProjectState(Enum):
     COMPLETE = "Complete"
     RUNNING = "Running"
 
+class TextFile:
+    def __init__(self, file_name: str, contents: str):
+        self.file_path = file_name
+        self.contents = contents
+
 class Project:
     def __init__(self, title: str, description: str, prompt: str):
         self.title = title
         self.description = description
         self.prompt = prompt
-        self.files: List[str] = []
+        self.files: List[TextFile] = []
         self.output: List[str] = []
-        self.schema = ""
+        self.schema = None
         self.state = ProjectState.GOAL_SET
 
     def to_dict(self):
