@@ -1,9 +1,9 @@
-from typing import List
+from typing import Any, List, Type
 import openai
 import logging
 from dotenv import load_dotenv
 import json
-from pydantic import BaseModel
+from pydantic import BaseModel, create_model
 
 # Set up logging
 logging.basicConfig(level=logging.ERROR)
@@ -19,6 +19,7 @@ class SchemaField(BaseModel):
     name: str
     description: str
     data_type: str
+    value: str | None = None # Add this line to include a value field
 
     def to_dict(self):
         return {
@@ -29,7 +30,34 @@ class SchemaField(BaseModel):
 
     @classmethod
     def from_dict(cls, data):
-        return cls(name=data["name"], description=data["description"], data_type=data["data_type"])
+        return cls(
+            name=data["name"], 
+            description=data["description"], 
+            data_type=data["data_type"]
+        )
+    
+class SchemaFieldResponse(BaseModel):
+    name: str
+    description: str
+    data_type: str
+    value: str 
+
+    def to_dict(self):
+        return {
+            "name": self.name,
+            "data_type": self.data_type,
+            "description": self.description,
+            "value": self.value
+        }
+
+    @classmethod
+    def from_dict(cls, data):
+        return cls(
+            name=data["name"], 
+            description=data["description"], 
+            data_type=data["data_type"], 
+            value=data.get("value")  
+        )
 
 class ResponseSchema(BaseModel):
     data_fields: List[SchemaField]
@@ -47,7 +75,7 @@ class ResponseSchema(BaseModel):
             data_fields=[SchemaField.from_dict(field_data) for field_data in data["data_fields"]],
             confirmation_message=data["confirmation_message"]
         )
-    
+
 class LLMHelper:
     def __init__(self):
         try:
@@ -58,7 +86,7 @@ class LLMHelper:
             logger.error(f"Error initializing OpenAI client: {str(e)}")
             raise
 
-    def chat_completion(self, messages, temperature=0.2, response_format=None):
+    def chat_completion(self, messages, temperature=0.2, response_format=None, response_format_json=None):
         try:
             kwargs = {
                 "model": self.model,
@@ -72,9 +100,22 @@ class LLMHelper:
                 logger.error(f"OpenAI client request (non-serializable): {kwargs}")
 
             # Make the API call
-            response = self.client.beta.chat.completions.parse(**kwargs, response_format=response_format)
+            if response_format is not None:
+                logger.debug(f"Using Pydantic response format: {response_format}")
+                response = self.client.beta.chat.completions.parse(**kwargs, response_format=response_format)
+            elif response_format_json is not None:
+                logger.debug(f"Using JSON schema response format: {response_format_json}")
+                response = self.client.chat.completions.create(
+                    **kwargs,
+                    response_format={
+                        "type": "json_object",
+                        "schema": response_format_json
+                    }
+                )
+            else:
+                logger.debug("No specific response format provided")
+                response = self.client.chat.completions.create(**kwargs)
 
-            # Log the response
             try:
                 logger.debug(f"OpenAI client response: {json.dumps(response.model_dump(), indent=2)}")
             except TypeError:
@@ -126,23 +167,64 @@ class LLMHelper:
             logger.error(f"Error generating schema: {str(e)}")
             raise
 
-    def run_schema(self, prompt, file_contents, schema) -> ResponseSchema:
+    def create_dynamic_model(self, schema: ResponseSchema) -> Type[BaseModel]:
+        field_definitions = {}
+        for field in schema.data_fields:
+            if field.data_type == "string":
+                field_type = str
+            elif field.data_type == "number":
+                field_type = float
+            elif field.data_type == "boolean":
+                field_type = bool
+            else:
+                field_type = Any  # Default to Any for unknown types
+            
+            field_definitions[field.name] = (field_type, ...)  # ... means the field is required
+
+        DynamicResponseSchema = create_model("DynamicResponseSchema", **field_definitions)
+        
+        return create_model(
+            "DynamicExtraction",
+            extracted_items=(List[DynamicResponseSchema], ...)
+        )
+
+    def run_schema(self, prompt: str, file_contents: str, schema: ResponseSchema) -> List[ResponseSchema]:
         try:
             messages = [
-                {"role": "system", "content": f"You are an AI assistant that extracts structured data from text. Your goal is {prompt}"},
+                {"role": "system", "content": f"You are an AI assistant that extracts structured data from text. Your goal is {prompt}. Please return a list of extracted data items."},
                 {"role": "user", "content": f"Extract for this input:\n\n{file_contents}"}
             ]
-                    
-            run_schema_response = self.chat_completion(
+
+            DynamicExtraction = self.create_dynamic_model(schema)
+
+            extraction_response = self.client.beta.chat.completions.parse(
+                model=self.model,
                 messages=messages,
-                response_format=ResponseSchema
+                response_format=DynamicExtraction
             )
-            if run_schema_response.choices[0].message.refusal:
-                raise Exception(run_schema_response.choices[0].message.refusal)
 
-            parsed_response = run_schema_response.choices[0].message.parsed
+            if extraction_response.choices[0].message.refusal:
+                raise Exception(extraction_response.choices[0].message.refusal)
 
-            return parsed_response
+            parsed_items = extraction_response.choices[0].message.parsed.extracted_items
+
+            # Convert the dynamically parsed items back to ResponseSchema objects
+            return [
+                ResponseSchema(
+                    data_fields=[
+                        SchemaField(
+                            name=field.name,
+                            description=field.description,
+                            data_type=field.data_type,
+                            value=str(getattr(item, field.name))
+                        )
+                        for field in schema.data_fields
+                    ],
+                    confirmation_message=schema.confirmation_message
+                )
+                for item in parsed_items
+            ]
+
         except Exception as e:
             logger.error(f"Error generating example: {str(e)}")
             raise

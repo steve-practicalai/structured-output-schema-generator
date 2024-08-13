@@ -70,20 +70,34 @@ class ProjectsManager:
         return st.session_state.projects
 
     def save_to_file(self):
-        projects_data = [project.to_dict() for project in self.projects]
-        json_str = json.dumps(projects_data, indent=2)
-        st.download_button(
-            label="Download Projects",
-            data=json_str,
-            file_name="projects.json",
-            mime="application/json"
-        )
+        if(self.projects):
+            active_project = st.session_state.active_project
+            for i, project in enumerate(self.projects):
+                if project is active_project:
+                    st.session_state.projects[i] = active_project
+                    break
+            else:
+                st.session_state.projects.append(active_project)
+            projects_data = [project.to_dict() for project in self.projects]
+            json_str = json.dumps(projects_data, indent=2)
+            st.download_button(
+                label="Download Projects",
+                data=json_str,
+                file_name="projects.json",
+                mime="application/json"
+            )
 
     def load_from_file(self):
         uploaded_file = st.file_uploader("Choose a projects file", type="json")
         if uploaded_file is not None:
             projects_data = json.load(uploaded_file)
-            st.session_state.projects = [Project.from_dict(data) for data in projects_data]
+            loaded_projects = []
+            for data in projects_data:
+                project = Project.from_dict(data)
+                # Ensure file contents are properly loaded
+                project.files = [TextFile.from_dict(file_data) for file_data in data.get('files', [])]
+                loaded_projects.append(project)
+            st.session_state.projects = loaded_projects
             st.success("Projects loaded successfully!")
 
     def append(self, project: Project):
