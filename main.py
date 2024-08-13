@@ -1,10 +1,16 @@
+import json
+from typing import List
+import pandas as pd
 import streamlit as st
-from util import Project, ProjectState
+from model import LLMHelper
+from util import Project, ProjectState, ProjectsManager
 from create_project import create_project_workflow
+import logging
+
+logging.basicConfig(level=logging.DEBUG)
+logger = logging.getLogger(__name__)
 
 def initialize_session_state():
-    if "projects" not in st.session_state:
-        st.session_state.projects = []
     if "active_project" not in st.session_state:
         st.session_state.active_project = None
     if "creating_project" not in st.session_state:
@@ -12,11 +18,12 @@ def initialize_session_state():
 
 def show_project_list():
     st.sidebar.title("Projects")
-    
+    projects_manager = ProjectsManager()
+
     # Use the actual project objects for selection
     selected_project = st.sidebar.radio(
         "Select a project:",
-        options=st.session_state.projects,
+        options=projects_manager.projects,
         format_func=lambda p: f"{p.title} ({p.state.value})"
     )
     
@@ -26,7 +33,7 @@ def show_project_list():
 
 def show_project_details():
     if st.session_state.active_project is not None:
-        project = st.session_state.active_project  # Now this is the actual Project object
+        project: Project = st.session_state.active_project  # Now this is the actual Project object
         
         col1, col2, col3, col4, col5 = st.columns(5)
         with col1:
@@ -44,9 +51,12 @@ def show_project_details():
         with col5:
             if st.button("Delete", key=f"delete_project_{project.title}"):
                 delete_project()
-
+        
         st.text_input("Title", value=project.title, key="edit_project_title")
         st.text_area("Description", value=project.description, key="edit_project_description")
+        st.subheader("Files")
+        df = pd.DataFrame({"file_name": [file.file_name for file in project.files]})
+        st.table(df)
         
         if st.button("Save Changes", key="save_project_changes"):
             save_project_changes()
@@ -71,22 +81,37 @@ def show_add_files_modal(project):
 
 def run_project(project):
     project.state = ProjectState.RUNNING
-    # Placeholder for running project logic
+    responses = []
+    with st.spinner("Generating results..."):
+        for file in project.files:
+            try:
+                response = LLMHelper().run_schema(project.prompt, file.contents, project.schema)
+                responses.append(response)
+            except Exception as e:
+                st.error(f"Error processing file {file}: {str(e)}")
+                return
+        if responses:
+            df = pd.DataFrame([vars(response.data_fields) for response in responses])
+            st.table(df)
+        else:
+            st.info("No responses to display")
 
 def delete_project():
     if st.button("Confirm Delete"):
-        del st.session_state.projects[st.session_state.active_project]
+        projects_manager = ProjectsManager()
+        del projects_manager[st.session_state.active_project]
         st.session_state.active_project = None
         st.rerun()
 
 def save_project_changes():
-    project = st.session_state.projects[st.session_state.active_project]
+    projects_manager = ProjectsManager()
+    project = projects_manager[st.session_state.active_project]
     project.title = st.session_state.project_title
     project.description = st.session_state.project_description
 
 def main():
     initialize_session_state()
-    
+    projects_manager = ProjectsManager()
     st.title("OpenAI Structured Output Schema Generator")
 
     st.sidebar.image("https://practicalai.co.nz/content/WhiteLogo-BrandName-OnTransparent.png")
@@ -99,7 +124,7 @@ def main():
     if st.session_state.creating_project:
         new_project = create_project_workflow()
         if new_project and new_project.state == ProjectState.COMPLETE:
-            st.session_state.projects.append(new_project)
+            projects_manager.append(new_project)
             st.session_state.active_project = new_project
             st.session_state.creating_project = False
             st.session_state.temp_project = None

@@ -3,6 +3,10 @@ import pandas as pd
 import streamlit as st
 from model import LLMHelper
 from util import Project, ProjectState, TextFile
+import logging
+
+logging.basicConfig(level=logging.ERROR)
+logger = logging.getLogger(__name__)
 
 def create_project_workflow():
     st.subheader("Create New Project")
@@ -72,7 +76,10 @@ def file_upload_step(project):
     uploaded_file = st.file_uploader("Choose a file", key="new_project_file_upload")
     if uploaded_file is not None:
         file = TextFile(uploaded_file.name, uploaded_file.read().decode("utf-8"))
-        st.session_state.temp_project.files.append(file)
+        if not st.session_state.temp_project.files:
+            st.session_state.temp_project.files.append(file)
+        else:
+            st.session_state.temp_project.files[0] = file
         st.write(f"File {uploaded_file.name} uploaded successfully!")
     
     col1, col2 = st.columns(2)
@@ -157,7 +164,7 @@ def complete_step(project):
     st.write(f"Prompt: {prompt}")
     
     if st.button("Save Project", key="create_project_final"):
-        new_project = Project(title, description, prompt)
+        new_project = st.session_state.temp_project
         new_project.state = ProjectState.COMPLETE
         # Reset the create project state
         st.session_state.create_project_step = "GOAL_SET"

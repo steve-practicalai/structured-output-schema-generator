@@ -6,7 +6,7 @@ import json
 from pydantic import BaseModel
 
 # Set up logging
-logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(level=logging.ERROR)
 logger = logging.getLogger(__name__)
 load_dotenv()
 
@@ -20,10 +20,34 @@ class SchemaField(BaseModel):
     description: str
     data_type: str
 
+    def to_dict(self):
+        return {
+            "name": self.name,
+            "data_type": self.data_type,
+            "description": self.description
+        }
+
+    @classmethod
+    def from_dict(cls, data):
+        return cls(name=data["name"], description=data["description"], data_type=data["data_type"])
+
 class ResponseSchema(BaseModel):
     data_fields: List[SchemaField]
     confirmation_message: str
 
+    def to_dict(self):
+        return {
+            "data_fields": [field.to_dict() for field in self.data_fields],
+            "confirmation_message": self.confirmation_message
+        }
+
+    @classmethod
+    def from_dict(cls, data):
+        return cls(
+            data_fields=[SchemaField.from_dict(field_data) for field_data in data["data_fields"]],
+            confirmation_message=data["confirmation_message"]
+        )
+    
 class LLMHelper:
     def __init__(self):
         try:
