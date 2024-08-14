@@ -3,7 +3,7 @@ from typing import List
 import pandas as pd
 import streamlit as st
 from model import LLMHelper, ResponseSchema
-from util import Project, ProjectState, ProjectsManager, TextFile
+from util import FileState, Project, ProjectState, ProjectsManager, TextFile
 from create_project import create_project_workflow
 import logging
 
@@ -19,19 +19,32 @@ def initialize_session_state():
 def show_project_list():
     projects_manager = ProjectsManager()
 
-    # Rest of the function remains the same
-    selected_project = st.sidebar.radio(
-        "Select a project:",
-        options=projects_manager.projects,
-        format_func=lambda p: f"{p.title} ({p.state.value})"
-    )
+    with st.sidebar:
+        st.title("Projects")
+        with st.container(height=400):
+            if st.button("Create New Project", key="create_new_project"):
+                st.session_state.creating_project = True
+                st.session_state.active_project = None
+                st.session_state.temp_project = None
+                st.rerun()
+            selected_project = st.radio(
+                "Select a project:",
+                options=projects_manager.projects,
+                format_func=lambda p: f"{p.title} ({p.state.value})"
+            )
     
     st.session_state.active_project = selected_project
     st.session_state.creating_project = False
     
     with st.sidebar:
-        projects_manager.save_to_file()
-        projects_manager.load_from_file()
+        with st.container(height=70):
+            projects_manager.save_to_file()
+        with st.container(height=200):
+            st.text("Import Projects")
+            uploaded_file = st.file_uploader("Import Projects", label_visibility="collapsed", type="json")
+            if st.session_state.active_project is None and uploaded_file is not None:
+                projects_manager.load_from_file(uploaded_file)
+                st.rerun()
 
 
 
@@ -45,23 +58,24 @@ def show_project_details():
         if "run_data" not in st.session_state:
             st.session_state.run_data = None
 
-        col1, col2, col3, col4, col5 = st.columns(5)
+        col1, col2 = st.columns(2)
         with col1:
-            if st.button("Edit Prompt", key=f"edit_prompt_{project.title}"):
-                show_edit_prompt_modal(project)
-        with col2:
-            if st.button("Edit Schema", key=f"edit_schema_{project.title}"):
-                show_edit_schema_modal(project)
-        with col3:
             if st.button("Run", key=f"run_project_{project.title}") or st.session_state.modal == "run_project":
                 st.session_state.modal = "run_project"
-                st.session_state.run_data = run_project()
-        with col4:
+                st.session_state.active_project = run_project(st.session_state.active_project)
+        with col2:
             if st.button("Delete", key=f"delete_project_{project.title}"):
-                delete_project()
+                delete_project(st.session_state.active_project)
         
         st.text_input("Title", value=project.title, key="edit_project_title")
         st.text_area("Description", value=project.description, key="edit_project_description")
+        st.text_area("Prompt", value=project.prompt, key="edit_project_prompt")
+
+        # Display schema
+        schema_df = pd.DataFrame([{k: v for k, v in vars(field).items() if k != "value"} for field in project.schema.data_fields])
+        st.dataframe(schema_df, hide_index=True)
+
+        # Display files
         st.subheader("Files")
         uploaded_files = st.file_uploader("Choose files", accept_multiple_files=True, key="add_files")
         if uploaded_files:
@@ -78,7 +92,7 @@ def show_project_details():
         if st.session_state.run_data is not None:
             st.session_state.modal = ""
             df = pd.DataFrame(st.session_state.run_data)
-            st.dataframe(df)
+            st.dataframe(df, hide_index=True)
             
             # Add download button for CSV
             csv = df.to_csv(index=False)
@@ -89,55 +103,29 @@ def show_project_details():
                 mime="text/csv",
             )
         df = pd.DataFrame({"file_name": [file.file_name for file in project.files]})
-        st.table(df)
+        st.dataframe(df, hide_index=True)
         
         if st.button("Save Changes", key="save_project_changes"):
             save_project_changes()
 
-def show_edit_prompt_modal(project):
-    # Placeholder for edit prompt modal
-    st.text_area("Edit Prompt", value=project.prompt, key="edit_prompt")
-    if st.button("Save Prompt"):
-        project.prompt = st.session_state.edit_prompt
-
-def show_edit_schema_modal(project):
-    # Placeholder for edit schema modal
-    st.text_area("Edit Schema", value=project.schema, key="edit_schema")
-    if st.button("Save Schema"):
-        project.schema = st.session_state.edit_schema
-
-def show_add_files_modal():
-    uploaded_files = st.file_uploader("Choose files", accept_multiple_files=True, key="add_files")
-    if uploaded_files:
-        for file in uploaded_files:
-            file_contents = file.read().decode("utf-8")
-            new_file = TextFile(file.name, file_contents)
-            st.session_state.active_project.files.append(new_file)
-            st.session_state.modal = ""
-            logger.error((f"{len(uploaded_files)} file(s) added successfully!"))
-        
-        st.success(f"{len(uploaded_files)} file(s) added successfully!")
-    else:
-        st.warning("No files selected. Please choose files before clicking 'Add Files'.")
-
-def run_project():
-    project = st.session_state.active_project
-    all_data = []
+def run_project(project: Project):
+    project.state = ProjectState.RUNNING
     for file in project.files:
         try:
-            responses: List[ResponseSchema] = LLMHelper().run_schema(project.prompt, file.contents, project.schema)
-            for response in responses:
-                row = {'File': file.file_name}
-                for field in response.data_fields:
-                    row[field.name] = field.value
-                all_data.append(row)
+            file = run_file(file)
         except Exception as e:
             st.error(f"Error processing file {file.file_name}: {str(e)}")
             return
+    project.state = ProjectState.COMPLETE
+    return project
 
-    return all_data
+def run_file(file: TextFile):
+    file.state = FileState.RUNNING
+    file.results = LLMHelper().run_schema(st.session_state.active_project.prompt, file.contents, st.session_state.active_project.schema)
+    file.state = FileState.FINISHED
+    return file
 
-def delete_project():
+def delete_project(project: Project):
     if st.button("Confirm Delete"):
         projects_manager = ProjectsManager()
         del projects_manager[st.session_state.active_project]
@@ -153,15 +141,18 @@ def save_project_changes():
 def main():
     initialize_session_state()
     projects_manager = ProjectsManager()
-    st.title("OpenAI Structured Output Schema Generator!")
+    
+    # logger.error(f"Project 1: {projects_manager.projects[0]}")
+    # logger.error(f"Project 1 file 1: {projects_manager.projects[0].files[0]}")
+    # logger.error(f"Project 1 file 1 Result 1: {projects_manager.projects[0].files[0].results[0]}")
+    st.sidebar.markdown('''
+        <a href="https://practicalai.co.nz">
+            <img src="https://practicalai.co.nz/content/WhiteLogo-BrandName-OnTransparent.png" alt="Practical:AI"/>
+        </a>''',
+        unsafe_allow_html=True
+    )
+    st.sidebar.subheader("OpenAI Structured Outputs")
 
-    st.sidebar.image("https://practicalai.co.nz/content/WhiteLogo-BrandName-OnTransparent.png")
-    st.sidebar.title("Projects")
-    if st.sidebar.button("Create New Project", key="create_new_project"):
-        st.session_state.creating_project = True
-        st.session_state.active_project = None
-        st.session_state.temp_project = None
-        st.rerun()
 
     if st.session_state.creating_project:
         new_project = create_project_workflow()
@@ -172,12 +163,11 @@ def main():
             st.session_state.temp_project = None
             st.success("Project created successfully!")
             st.rerun()
-
-    if not st.session_state.creating_project:
+    else:
         show_project_list()
 
-    if st.session_state.active_project is not None:
-        show_project_details()
+        if st.session_state.active_project is not None:
+            show_project_details()
 
 if __name__ == "__main__":
     main()

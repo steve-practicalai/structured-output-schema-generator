@@ -58,7 +58,6 @@ class LLMHelper:
         try:
             self.client = openai.OpenAI()
             self.model = "gpt-4o-mini"
-            logger.info("OpenAI client initialized successfully")
         except Exception as e:
             logger.error(f"Error initializing OpenAI client: {str(e)}")
             raise
@@ -79,16 +78,18 @@ class LLMHelper:
             # Make the API call
             if response_format is not None:
                 logger.debug(f"Using Pydantic response format: {response_format}")
-                response = self.client.beta.chat.completions.parse(**kwargs, response_format=response_format)
+                logger.info("Running OpenAI Query")
+                # response = self.client.beta.chat.completions.parse(**kwargs, response_format=response_format)
             elif response_format_json is not None:
                 logger.debug(f"Using JSON schema response format: {response_format_json}")
-                response = self.client.chat.completions.create(
-                    **kwargs,
-                    response_format={
-                        "type": "json_object",
-                        "schema": response_format_json
-                    }
-                )
+                logger.info("Running OpenAI Query")
+                # response = self.client.chat.completions.create(
+                #     **kwargs,
+                #     response_format={
+                #         "type": "json_object",
+                #         "schema": response_format_json
+                #     }
+                # )
             else:
                 logger.debug("No specific response format provided")
                 response = self.client.chat.completions.create(**kwargs)
@@ -174,8 +175,7 @@ class LLMHelper:
 
             DynamicExtraction = self.create_dynamic_model(schema)
 
-            extraction_response = self.client.beta.chat.completions.parse(
-                model=self.model,
+            extraction_response = self.chat_completion(
                 messages=messages,
                 response_format=DynamicExtraction
             )

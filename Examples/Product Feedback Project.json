@@ -1,0 +1,500 @@
+[
+  {
+    "title": "Extract Product Feedback",
+    "description": "A collection of comments and suggestions from users regarding their experience with a product.",
+    "prompt": "Extract all product feedback provided by users, including both positive and negative comments.",
+    "files": [
+      {
+        "file_name": "1.txt",
+        "contents": "\"acme widget broke after 2 weeks!!! dont buy this junk\" (1/5)\n\nJust wasted $150 on this piece of garbage. Was working fine then just stopped turning on one day. No response from customer service either. Save ur money and buy something else. Can't believe I fell for the hype smh\n",
+        "results": [
+          {
+            "data_fields": [
+              {
+                "name": "feedback_text",
+                "data_type": "string",
+                "description": "The text of the user feedback provided about the product."
+              },
+              {
+                "name": "rating",
+                "data_type": "number",
+                "description": "The rating given by the user, typically on a scale from 1 to 5."
+              },
+              {
+                "name": "sentiment",
+                "data_type": "string",
+                "description": "The sentiment of the feedback, indicating whether it is positive, negative, or neutral."
+              }
+            ],
+            "confirmation_message": "Feedback extraction schema created successfully."
+          },
+          {
+            "data_fields": [
+              {
+                "name": "feedback_text",
+                "data_type": "string",
+                "description": "The text of the user feedback provided about the product."
+              },
+              {
+                "name": "rating",
+                "data_type": "number",
+                "description": "The rating given by the user, typically on a scale from 1 to 5."
+              },
+              {
+                "name": "sentiment",
+                "data_type": "string",
+                "description": "The sentiment of the feedback, indicating whether it is positive, negative, or neutral."
+              }
+            ],
+            "confirmation_message": "Feedback extraction schema created successfully."
+          }
+        ],
+        "state": "Finished"
+      },
+      {
+        "file_name": "10.txt",
+        "contents": "\n\"The acme gadget is ok i guess. battery life sucks tho. have to charge it like every day. ugh\" (2/5)\n\nmeh. its fine for basic stuff but the battery is driving me nuts. acme claims \"all-day battery life\" but unless your day is like 6 hours, good luck. im constantly looking for outlets. plus it gets super hot when charging which is weird. might return it if i can find my receipt. probs gonna go back to my old one tbh",
+        "results": [
+          {
+            "data_fields": [
+              {
+                "name": "feedback_text",
+                "data_type": "string",
+                "description": "The text of the user feedback provided about the product."
+              },
+              {
+                "name": "rating",
+                "data_type": "number",
+                "description": "The rating given by the user, typically on a scale from 1 to 5."
+              },
+              {
+                "name": "sentiment",
+                "data_type": "string",
+                "description": "The sentiment of the feedback, indicating whether it is positive, negative, or neutral."
+              }
+            ],
+            "confirmation_message": "Feedback extraction schema created successfully."
+          },
+          {
+            "data_fields": [
+              {
+                "name": "feedback_text",
+                "data_type": "string",
+                "description": "The text of the user feedback provided about the product."
+              },
+              {
+                "name": "rating",
+                "data_type": "number",
+                "description": "The rating given by the user, typically on a scale from 1 to 5."
+              },
+              {
+                "name": "sentiment",
+                "data_type": "string",
+                "description": "The sentiment of the feedback, indicating whether it is positive, negative, or neutral."
+              }
+            ],
+            "confirmation_message": "Feedback extraction schema created successfully."
+          }
+        ],
+        "state": "Finished"
+      },
+      {
+        "file_name": "9.txt",
+        "contents": "\"Bought this for my dad's birthday. He seems to like it but I have no clue how to use it. Looks complicated\" (4/5)\n\nGot the Acme Gadget X3000 (I think that's what it's called?) for my dad. He's super into tech stuff. When he opened it his eyes lit up like a kid on Christmas morning lol. He's been fiddling with it non-stop. I tried to use it and was completely lost, but he says it's \"intuitive\". Guess it's good if you're into that sort of thing? \u00af\\\\_(\u30c4)_/\u00af Anyways, dad's happy so mission accomplished!\n",
+        "results": [
+          {
+            "data_fields": [
+              {
+                "name": "feedback_text",
+                "data_type": "string",
+                "description": "The text of the user feedback provided about the product."
+              },
+              {
+                "name": "rating",
+                "data_type": "number",
+                "description": "The rating given by the user, typically on a scale from 1 to 5."
+              },
+              {
+                "name": "sentiment",
+                "data_type": "string",
+                "description": "The sentiment of the feedback, indicating whether it is positive, negative, or neutral."
+              }
+            ],
+            "confirmation_message": "Feedback extraction schema created successfully."
+          },
+          {
+            "data_fields": [
+              {
+                "name": "feedback_text",
+                "data_type": "string",
+                "description": "The text of the user feedback provided about the product."
+              },
+              {
+                "name": "rating",
+                "data_type": "number",
+                "description": "The rating given by the user, typically on a scale from 1 to 5."
+              },
+              {
+                "name": "sentiment",
+                "data_type": "string",
+                "description": "The sentiment of the feedback, indicating whether it is positive, negative, or neutral."
+              }
+            ],
+            "confirmation_message": "Feedback extraction schema created successfully."
+          }
+        ],
+        "state": "Finished"
+      },
+      {
+        "file_name": "8.txt",
+        "contents": "\"i dunno what all the bad reviews are about. my widget works fine. maybe i just got lucky lol\" (5/5)\n\nbought my acme widget like 6 months ago. use it every day, no problems at all. setup was easy, battery lasts forever, does everything i need. saw some ppl complaining but honestly cant relate. maybe they got a bad batch or something? anyways im happy with mine. good job acme \ud83d\udc4d\n",
+        "results": [
+          {
+            "data_fields": [
+              {
+                "name": "feedback_text",
+                "data_type": "string",
+                "description": "The text of the user feedback provided about the product."
+              },
+              {
+                "name": "rating",
+                "data_type": "number",
+                "description": "The rating given by the user, typically on a scale from 1 to 5."
+              },
+              {
+                "name": "sentiment",
+                "data_type": "string",
+                "description": "The sentiment of the feedback, indicating whether it is positive, negative, or neutral."
+              }
+            ],
+            "confirmation_message": "Feedback extraction schema created successfully."
+          },
+          {
+            "data_fields": [
+              {
+                "name": "feedback_text",
+                "data_type": "string",
+                "description": "The text of the user feedback provided about the product."
+              },
+              {
+                "name": "rating",
+                "data_type": "number",
+                "description": "The rating given by the user, typically on a scale from 1 to 5."
+              },
+              {
+                "name": "sentiment",
+                "data_type": "string",
+                "description": "The sentiment of the feedback, indicating whether it is positive, negative, or neutral."
+              }
+            ],
+            "confirmation_message": "Feedback extraction schema created successfully."
+          }
+        ],
+        "state": "Finished"
+      },
+      {
+        "file_name": "7.txt",
+        "contents": "\"This McGuffin is a lifesaver! I use it for my small biz and it's made everything so much easier. Only giving 4 stars cuz the app is a bit glitchy sometimes\" (4/5)\n\nAs a small business owner, I can't recommend the Acme McGuffin enough! It's streamlined all our inventory processes and saved us tons of time. The interface is intuitive and it syncs perfectly with our other systems. Only reason it's not 5 stars is the mobile app - it crashes sometimes and needs a bit of work. But overall, amazing product. Thanks Acme!\n",
+        "results": [
+          {
+            "data_fields": [
+              {
+                "name": "feedback_text",
+                "data_type": "string",
+                "description": "The text of the user feedback provided about the product."
+              },
+              {
+                "name": "rating",
+                "data_type": "number",
+                "description": "The rating given by the user, typically on a scale from 1 to 5."
+              },
+              {
+                "name": "sentiment",
+                "data_type": "string",
+                "description": "The sentiment of the feedback, indicating whether it is positive, negative, or neutral."
+              }
+            ],
+            "confirmation_message": "Feedback extraction schema created successfully."
+          },
+          {
+            "data_fields": [
+              {
+                "name": "feedback_text",
+                "data_type": "string",
+                "description": "The text of the user feedback provided about the product."
+              },
+              {
+                "name": "rating",
+                "data_type": "number",
+                "description": "The rating given by the user, typically on a scale from 1 to 5."
+              },
+              {
+                "name": "sentiment",
+                "data_type": "string",
+                "description": "The sentiment of the feedback, indicating whether it is positive, negative, or neutral."
+              }
+            ],
+            "confirmation_message": "Feedback extraction schema created successfully."
+          }
+        ],
+        "state": "Finished"
+      },
+      {
+        "file_name": "6.txt",
+        "contents": "\"been using acme gadgets for years. latest one isnt as good as the old models. whyd they change it???\" (2/5)\n\nok so ive had like 3 diff acme gadgets over the years. always loved em. but this new one? big disappointment. they changed the interface and now its all confusing. plus the battery doesnt last as long?? makes no sense. might switch brands if they dont fix this in the next update. come on acme get it together\n",
+        "results": [
+          {
+            "data_fields": [
+              {
+                "name": "feedback_text",
+                "data_type": "string",
+                "description": "The text of the user feedback provided about the product."
+              },
+              {
+                "name": "rating",
+                "data_type": "number",
+                "description": "The rating given by the user, typically on a scale from 1 to 5."
+              },
+              {
+                "name": "sentiment",
+                "data_type": "string",
+                "description": "The sentiment of the feedback, indicating whether it is positive, negative, or neutral."
+              }
+            ],
+            "confirmation_message": "Feedback extraction schema created successfully."
+          },
+          {
+            "data_fields": [
+              {
+                "name": "feedback_text",
+                "data_type": "string",
+                "description": "The text of the user feedback provided about the product."
+              },
+              {
+                "name": "rating",
+                "data_type": "number",
+                "description": "The rating given by the user, typically on a scale from 1 to 5."
+              },
+              {
+                "name": "sentiment",
+                "data_type": "string",
+                "description": "The sentiment of the feedback, indicating whether it is positive, negative, or neutral."
+              }
+            ],
+            "confirmation_message": "Feedback extraction schema created successfully."
+          }
+        ],
+        "state": "Finished"
+      },
+      {
+        "file_name": "5.txt",
+        "contents": "\"DO NOT BUY THE ACME WIDGET!!! Terrible customer service. Tried to return it and they gave me the runaround. Never again!!!\" (1/5)\n\nWorst. Experience. Ever. Bought this stupid widget and it didn't even work right out of the box. Tried to return it and Acme's \"customer service\" (yeah right) kept transferring me around and putting me on hold. Ended up wasting 2 hours on the phone and they still wouldn't take it back!!! AVOID AT ALL COSTS. Going to report them to BBB.\n",
+        "results": [
+          {
+            "data_fields": [
+              {
+                "name": "feedback_text",
+                "data_type": "string",
+                "description": "The text of the user feedback provided about the product."
+              },
+              {
+                "name": "rating",
+                "data_type": "number",
+                "description": "The rating given by the user, typically on a scale from 1 to 5."
+              },
+              {
+                "name": "sentiment",
+                "data_type": "string",
+                "description": "The sentiment of the feedback, indicating whether it is positive, negative, or neutral."
+              }
+            ],
+            "confirmation_message": "Feedback extraction schema created successfully."
+          },
+          {
+            "data_fields": [
+              {
+                "name": "feedback_text",
+                "data_type": "string",
+                "description": "The text of the user feedback provided about the product."
+              },
+              {
+                "name": "rating",
+                "data_type": "number",
+                "description": "The rating given by the user, typically on a scale from 1 to 5."
+              },
+              {
+                "name": "sentiment",
+                "data_type": "string",
+                "description": "The sentiment of the feedback, indicating whether it is positive, negative, or neutral."
+              }
+            ],
+            "confirmation_message": "Feedback extraction schema created successfully."
+          }
+        ],
+        "state": "Finished"
+      },
+      {
+        "file_name": "4.txt",
+        "contents": "\"Meh. It's alright. Expected more features for the price. At least it looks nice on my desk lol\" (3/5)\n\nBought the Acme Widget Pro or whatever it's called. It's... fine? I mean, it does the basic stuff, but I thought it would have more bells and whistles for $300. The design is sleek tho, I'll give 'em that. Kinda just sits there looking pretty most of the time. Guess that's something? \u00af\\\\_(\u30c4)_/\u00af\n",
+        "results": [
+          {
+            "data_fields": [
+              {
+                "name": "feedback_text",
+                "data_type": "string",
+                "description": "The text of the user feedback provided about the product."
+              },
+              {
+                "name": "rating",
+                "data_type": "number",
+                "description": "The rating given by the user, typically on a scale from 1 to 5."
+              },
+              {
+                "name": "sentiment",
+                "data_type": "string",
+                "description": "The sentiment of the feedback, indicating whether it is positive, negative, or neutral."
+              }
+            ],
+            "confirmation_message": "Feedback extraction schema created successfully."
+          },
+          {
+            "data_fields": [
+              {
+                "name": "feedback_text",
+                "data_type": "string",
+                "description": "The text of the user feedback provided about the product."
+              },
+              {
+                "name": "rating",
+                "data_type": "number",
+                "description": "The rating given by the user, typically on a scale from 1 to 5."
+              },
+              {
+                "name": "sentiment",
+                "data_type": "string",
+                "description": "The sentiment of the feedback, indicating whether it is positive, negative, or neutral."
+              }
+            ],
+            "confirmation_message": "Feedback extraction schema created successfully."
+          }
+        ],
+        "state": "Finished"
+      },
+      {
+        "file_name": "3.txt",
+        "contents": "\n\n\"love my new mcguffin!!! use it everyday for work, so much better than my old one. shipping was slow tho\" (4/5)\n\nOMG this thing is a game changer for my job!!! So much faster than my old device, saves me like an hour every day. Only reason it's not 5 stars is cuz it took foreverrr to arrive. Like 2 weeks?? Come on Acme, step up your shipping game. But seriously, get this if you're on the fence!\n",
+        "results": [
+          {
+            "data_fields": [
+              {
+                "name": "feedback_text",
+                "data_type": "string",
+                "description": "The text of the user feedback provided about the product."
+              },
+              {
+                "name": "rating",
+                "data_type": "number",
+                "description": "The rating given by the user, typically on a scale from 1 to 5."
+              },
+              {
+                "name": "sentiment",
+                "data_type": "string",
+                "description": "The sentiment of the feedback, indicating whether it is positive, negative, or neutral."
+              }
+            ],
+            "confirmation_message": "Feedback extraction schema created successfully."
+          },
+          {
+            "data_fields": [
+              {
+                "name": "feedback_text",
+                "data_type": "string",
+                "description": "The text of the user feedback provided about the product."
+              },
+              {
+                "name": "rating",
+                "data_type": "number",
+                "description": "The rating given by the user, typically on a scale from 1 to 5."
+              },
+              {
+                "name": "sentiment",
+                "data_type": "string",
+                "description": "The sentiment of the feedback, indicating whether it is positive, negative, or neutral."
+              }
+            ],
+            "confirmation_message": "Feedback extraction schema created successfully."
+          }
+        ],
+        "state": "Finished"
+      },
+      {
+        "file_name": "2.txt",
+        "contents": "\"The Gadget is pretty cool I guess. Does what it's supposed to do. Kinda pricey tho\" (3/5)\n\nGot the Acme Gadget last month. It's decent, does the job. The touchscreen is responsive and the battery lasts a while. But honestly, for $200 I expected more features or something. Idk maybe I'm just being picky. It's fine, just not mind-blowing or anything.\n",
+        "results": [
+          {
+            "data_fields": [
+              {
+                "name": "feedback_text",
+                "data_type": "string",
+                "description": "The text of the user feedback provided about the product."
+              },
+              {
+                "name": "rating",
+                "data_type": "number",
+                "description": "The rating given by the user, typically on a scale from 1 to 5."
+              },
+              {
+                "name": "sentiment",
+                "data_type": "string",
+                "description": "The sentiment of the feedback, indicating whether it is positive, negative, or neutral."
+              }
+            ],
+            "confirmation_message": "Feedback extraction schema created successfully."
+          },
+          {
+            "data_fields": [
+              {
+                "name": "feedback_text",
+                "data_type": "string",
+                "description": "The text of the user feedback provided about the product."
+              },
+              {
+                "name": "rating",
+                "data_type": "number",
+                "description": "The rating given by the user, typically on a scale from 1 to 5."
+              },
+              {
+                "name": "sentiment",
+                "data_type": "string",
+                "description": "The sentiment of the feedback, indicating whether it is positive, negative, or neutral."
+              }
+            ],
+            "confirmation_message": "Feedback extraction schema created successfully."
+          }
+        ],
+        "state": "Finished"
+      }
+    ],
+    "schema": {
+      "data_fields": [
+        {
+          "name": "feedback_text",
+          "data_type": "string",
+          "description": "The text of the user feedback provided about the product."
+        },
+        {
+          "name": "rating",
+          "data_type": "number",
+          "description": "The rating given by the user, typically on a scale from 1 to 5."
+        },
+        {
+          "name": "sentiment",
+          "data_type": "string",
+          "description": "The sentiment of the feedback, indicating whether it is positive, negative, or neutral."
+        }
+      ],
+      "confirmation_message": "Feedback extraction schema created successfully."
+    },
+    "state": "Complete"
+  }
+]
