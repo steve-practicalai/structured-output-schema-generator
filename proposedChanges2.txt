@@ -1,0 +1,112 @@
+# Unified Streamlit Best Practices and Patterns
+
+## Button Handling
+- Use direct callbacks: `st.button("Action", on_click=perform_action)`
+- Avoid using lambdas or intermediate functions
+- Clear relevant session state flags in callbacks when necessary
+
+## State Management
+- Utilize Streamlit's built-in state management via `st.session_state`
+- Access and modify state directly in callbacks
+- Avoid creating complex custom state management systems
+- Use separate flags for tracking states not directly tied to widgets
+
+## UI Refreshing
+- Rely on Streamlit's automatic rerun behavior
+- Update state in callbacks, let Streamlit handle the UI refresh
+- Avoid manual `st.rerun()` calls
+
+## File Upload Handling
+- Use `on_change` for immediate processing:
+  ```python
+  st.file_uploader("Upload file", on_change=handle_upload, key="file_upload")
+
+  def handle_upload():
+      if st.session_state.file_upload:
+          process_file(st.session_state.file_upload)
+  ```
+- For delayed processing, use a separate flag:
+  ```python
+  uploaded_file = st.file_uploader("Upload file", key="file_upload")
+  if uploaded_file and not st.session_state.get('file_processed'):
+      process_file(uploaded_file)
+      st.session_state.file_processed = True
+  ```
+
+## Expected Streamlit Flow
+- Think of the app as a data flow, not a series of events
+- Each user interaction should update the state, triggering a rerun
+- UI should reflect the current state without explicit refresh commands
+
+## Error Handling and Logging
+- Use `logger.debug()` for development information
+- Use `logger.error()` for error reporting
+- Wrap main functions in try-except blocks to catch and log unexpected errors
+
+## Elements to Remove
+- Remove all `st.rerun()` calls
+- Eliminate unnecessary custom flags
+- Remove any code that manually manages widget states
+
+## Patterns to Avoid
+- Avoid lambda functions in callbacks (except for very simple operations)
+- Avoid complex state management systems
+- Avoid explicit loops or checks for UI updates
+
+## Project-Specific Patterns
+- Use consistent naming conventions for project-related functions
+- Always update the central data manager (e.g., `projects_manager`) when modifying data
+- Use a flag to trigger UI updates when project data changes:
+  ```python
+  def update_project(project, new_data):
+      projects_manager.update_project(project, new_data)
+      st.session_state.projects_updated = True
+  ```
+
+## Implementation Patterns
+
+1. Project Selection:
+   ```python
+   st.selectbox("Select Project", options=project_list, on_change=update_project, key="selected_project")
+
+   def update_project():
+       display_project(st.session_state.selected_project)
+   ```
+
+2. Running a Project:
+   ```python
+   st.button("Run Project", on_click=run_project, args=(current_project,))
+
+   def run_project(project):
+       # Run project logic here
+       st.session_state.project_state = "RUNNING"
+   ```
+
+3. Creating a New Project:
+   ```python
+   st.button("New Project", on_click=create_project_workflow)
+
+   def create_project_workflow():
+       # Project creation logic
+       st.session_state.current_step = "GOAL_SET"
+   ```
+
+4. Displaying Dynamic Content:
+   ```python
+   if st.session_state.get("current_step") == "GOAL_SET":
+       st.text_input("Project Goal", key="project_goal")
+       st.button("Next", on_click=set_next_step, args=("FILE_UPLOAD",))
+   elif st.session_state.get("current_step") == "FILE_UPLOAD":
+       st.file_uploader("Upload File", key="project_file")
+       # ... and so on
+
+   def set_next_step(next_step):
+       st.session_state.current_step = next_step
+   ```
+
+## Goals and Expected Outcomes
+- Less code: Simplify by leveraging Streamlit's built-in behaviors
+- More reliable: Reduce bugs related to manual state management
+- Improved performance: Minimize unnecessary reruns
+- Better maintainability: Clearer, more predictable code structure
+- Consistent error handling: Improve debugging and user experience

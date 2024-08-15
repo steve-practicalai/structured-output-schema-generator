@@ -1,8 +1,11 @@
 from enum import Enum
-import html
 import json
-from typing import Dict, List
+from typing import List
 import streamlit as st
+import logging
+
+logging.basicConfig(level=logging.ERROR)
+logger = logging.getLogger(__name__)
 
 from model import ResponseSchema
 
@@ -14,6 +17,7 @@ class ProjectState(Enum):
     EXAMPLE_GENERATED = "Example Generated"
     COMPLETE = "Complete"
     RUNNING = "Running"
+    ERROR = "Error"
 
 class FileState(Enum):
     NOT_STARTED = "Not Started"
@@ -80,56 +84,30 @@ class ProjectsManager:
     def projects(self) -> List[Project]:
         return st.session_state.projects
 
-    def save_to_file(self):
-        if(self.projects):
-            active_project = st.session_state.active_project
-            for i, project in enumerate(self.projects):
-                if project is active_project:
-                    st.session_state.projects[i] = active_project
-                    break
-            else:
-                st.session_state.projects.append(active_project)
-            projects_data = [project.to_dict() for project in self.projects]
-            json_str = json.dumps(projects_data, indent=2)
-            st.download_button(
-                label="Export Projects",
-                data=json_str,
-                file_name="projects.json",
-                mime="application/json"
-            )
+    def save_project(self, project):
+        if project not in self.projects:
+            self.projects.append(project)
+        else:
+            index = self.projects.index(project)
+            self.projects[index] = project
 
-    def load_from_file(self,uploaded_file):
+    def delete_project(self, project):
+        if project in self.projects:
+            self.projects.remove(project)
+
+    def save_to_file(self):
+        if self.projects:
+            projects_data = [project.to_dict() for project in self.projects]
+            return json.dumps(projects_data, indent=2)
+
+    def load_from_file(self, uploaded_file):
         projects_data = json.load(uploaded_file)
         loaded_projects = []
         for data in projects_data:
             project = Project.from_dict(data)
-            # Ensure file contents are properly loaded
-            project.files = [TextFile.from_dict(file_data) for file_data in data.get('files', [])]
             loaded_projects.append(project)
         st.session_state.projects = loaded_projects
-        if(loaded_projects):
-            st.session_state.active_project = loaded_projects[0]
-            st.success("Projects loaded successfully!")
-            uploaded_file = None
+        st.session_state.selected_project = loaded_projects[0].title
+        st.success("Projects loaded successfully!")
 
-    def append(self, project: Project):
-        # Check if a project with the same title already exists
-        for existing_project in self.projects:
-            if existing_project.title == project.title:
-                # Update the existing project instead of adding a new one
-                existing_project.__dict__.update(project.__dict__)
-                return
-        # If no existing project found, append the new one
-        st.session_state.projects.append(project)
-
-    def __setitem__(self, key, value):
-        st.session_state.projects[key] = value
-
-    def __getitem__(self, key):
-        return st.session_state.projects[key]
-
-    def __delitem__(self, key: int):
-        del st.session_state.projects[key]
-
-    def __len__(self):
-        return len(st.session_state.projects)
+projects_manager = ProjectsManager()

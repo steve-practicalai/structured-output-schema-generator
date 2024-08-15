@@ -1,15 +1,10 @@
-import json
-import pandas as pd
 import streamlit as st
+from util import Project, ProjectState, TextFile, projects_manager
 from model import LLMHelper
-from util import Project, ProjectState, TextFile
-import logging
-
-logging.basicConfig(level=logging.ERROR)
-logger = logging.getLogger(__name__)
+import pandas as pd
 
 def create_project_workflow():
-    st.subheader("Create New Project")
+    st.title("Create New Project")
     
     if "create_project_step" not in st.session_state:
         st.session_state.create_project_step = "GOAL_SET"
@@ -17,158 +12,97 @@ def create_project_workflow():
         st.session_state.temp_project = None
 
     step = st.session_state.create_project_step
-    project = st.session_state.temp_project
 
     if step == "GOAL_SET":
-        project = goal_set_step()
-    elif step == "FILE_UPLOADED":
-        project = file_upload_step(project)
-    elif step == "SCHEMA_RETURNED":
-        project = schema_returned_step(project)
-    elif step == "SCHEMA_APPROVED":
-        project = example_generated_step(project)
+        goal_set_step()
+    elif step == "FILE_UPLOAD":
+        file_upload_step()
+    elif step == "SCHEMA_REVIEW":
+        schema_review_step()
     elif step == "COMPLETE":
-        return complete_step(project)
-    
-    if project:
-        st.session_state.temp_project = project
-    return project
+        complete_step()
 
 def goal_set_step():
-    st.write("Step: Set Project Goal")
-    st.write("I'm here to help you create a structured output analysis. What kind of information would you like to extract?")
-
-    if 'user_input' not in st.session_state:
-        st.session_state.user_input = None
+    st.write("Step 1: Set Project Goal")
+    user_input = st.text_input("What information would you like to extract?", key="project_goal")
     
-    if 'project_setup' not in st.session_state:
-        st.session_state.project_setup = None
+    st.button("Next", on_click=setup_project, args=(user_input,), disabled=not user_input)
 
-    if st.session_state.user_input is None:
-        user_input = st.chat_input("e.g. Extract meeting action items")
-        if user_input:
-            st.session_state.user_input = user_input
-            st.rerun()
+def setup_project(user_input):
+    with st.spinner("Setting up project..."):
+        project_setup = LLMHelper().project_setup(user_input)
+    st.session_state.temp_project = Project(project_setup.title, project_setup.description, project_setup.prompt)
+    st.session_state.create_project_step = "FILE_UPLOAD"
 
-    if st.session_state.user_input and not st.session_state.project_setup:
-        with st.spinner("Setting up project..."):
-            st.session_state.project_setup = LLMHelper().project_setup(st.session_state.user_input)
-        st.rerun()
-
-    if st.session_state.project_setup is not None:
-        st.write(f"Project Goal: {st.session_state.user_input}")
-        title = st.text_input("Project Title", key="new_project_title", value=st.session_state.project_setup.title)
-        description = st.text_area("Project Description", key="new_project_description", value=st.session_state.project_setup.description)
-        prompt = st.text_area("Project Prompt", key="new_project_prompt", value=st.session_state.project_setup.prompt)
-        st.session_state.temp_project = Project(title, description, prompt)
-
-        if st.button("Next", key="goal_set_next"):
-            st.session_state.create_project_step = "FILE_UPLOADED"
-            # Reset goal_set_step session state
-            st.session_state.user_input = None
-            st.session_state.project_setup = None
-            st.rerun()
-
-    return st.session_state.get("temp_project")
-
-def file_upload_step(project):
-    st.write("Step: Upload Files")
-    uploaded_file = st.file_uploader("Choose a file", key="new_project_file_upload")
-    if uploaded_file is not None:
-        file = TextFile(uploaded_file.name, uploaded_file.read().decode("utf-8"))
-        if not st.session_state.temp_project.files:
-            st.session_state.temp_project.files.append(file)
-        else:
-            st.session_state.temp_project.files[0] = file
-        st.write(f"File {uploaded_file.name} uploaded successfully!")
+def file_upload_step():
+    st.write("Step 2: Upload File")
+    st.file_uploader("Choose a file", key="new_project_file_upload", on_change=process_uploaded_file)
     
-    col1, col2 = st.columns(2)
-    with col1:
-        if st.button("Back", key="file_upload_back"):
-            st.session_state.create_project_step = "GOAL_SET"
-            st.rerun()
-    with col2:
-        if st.button("Next", key="file_upload_next"):
-            st.session_state.create_project_step = "SCHEMA_RETURNED"
-            st.rerun()
-    
-    return project
+    st.button("Back", on_click=go_back_to_goal_set)
 
-def schema_returned_step(project):
-    st.write("Step: Review Returned Schema")
-    if 'schema_response' not in st.session_state:
-        st.session_state.schema_response = None
+def process_uploaded_file():
+    if st.session_state.new_project_file_upload:
+        file_contents = st.session_state.new_project_file_upload.read().decode("utf-8")
+        file = TextFile(st.session_state.new_project_file_upload.name, file_contents)
+        st.session_state.temp_project.files = [file]
+        st.session_state.create_project_step = "SCHEMA_REVIEW"
 
-    if st.session_state.schema_response is None:
-        with st.spinner("Generating Schema..."):
-            st.session_state.schema_response = LLMHelper().extract_schema(st.session_state.temp_project.files[0].contents, project.prompt)
-        st.rerun()
-    else:
-        df = pd.DataFrame([vars(field) for field in st.session_state.schema_response.data_fields])
+def go_back_to_goal_set():
+    st.session_state.create_project_step = "GOAL_SET"
 
-        st.table(df)
-    
-    col1, col2 = st.columns(2)
-    with col1:
-        if st.button("Back", key="schema_back"):
-            st.session_state.create_project_step = "FILE_UPLOADED"
-            st.rerun()
-    with col2:
-        if st.button("Approve Schema", key="schema_approve"):
-            st.session_state.create_project_step = "SCHEMA_APPROVED"
-            st.session_state.temp_project.schema = st.session_state.schema_response
-            st.session_state.schema_response = None
-            st.rerun()
-    
-    return project
-
-def example_generated_step(project):
-    st.write("Step: Review Generated Example")
+def schema_review_step():
+    st.write("Step 3: Review Schema")
     project = st.session_state.temp_project
-    if 'example_response' not in st.session_state:
-        st.session_state.example_response = None
-
-    if st.session_state.example_response is None:
-        with st.spinner("Generating Example..."):
-            st.session_state.example_response = LLMHelper().run_schema(project.prompt, project.files[0].contents, project.schema)
-        st.rerun()
-    else:
-        # convert data_fields to a DataFrame
-        df = pd.DataFrame([vars(field) for field in st.session_state.example_response.data_fields])
-        st.table(df)
+    
+    if 'schema_response' not in st.session_state:
+        with st.spinner("Generating Schema..."):
+            st.session_state.schema_response = LLMHelper().extract_schema(project.files[0].contents, project.prompt)
+    
+    schema_df = pd.DataFrame([vars(field) for field in st.session_state.schema_response.data_fields])
+    st.table(schema_df)
     
     col1, col2 = st.columns(2)
     with col1:
-        if st.button("Back", key="example_back"):
-            st.session_state.create_project_step = "SCHEMA_RETURNED"
-            st.rerun()
+        st.button("Back", on_click=go_back_to_file_upload)
     with col2:
-        if st.button("Complete", key="example_complete"):
-            st.session_state.create_project_step = "COMPLETE"
-            st.session_state.example_response = None
-            st.rerun()
-    
-    return project
+        st.button("Approve Schema", on_click=approve_schema)
 
-def complete_step(project):
+def go_back_to_file_upload():
+    st.session_state.create_project_step = "FILE_UPLOAD"
+    st.session_state.pop('schema_response', None)
+
+def approve_schema():
+    project = st.session_state.temp_project
+    project.schema = st.session_state.schema_response
+    project.state = ProjectState.SCHEMA_APPROVED
+    st.session_state.create_project_step = "COMPLETE"
+    st.session_state.pop('schema_response', None)
+
+def complete_step():
     st.write("Project Creation Complete!")
+    project = st.session_state.temp_project
     
-    # Retrieve project details from session state if project is None
-    title = project.title if project else st.session_state.get("new_project_title", "")
-    description = project.description if project else st.session_state.get("new_project_description", "")
-    prompt = project.prompt if project else st.session_state.get("new_project_prompt", "")
+    st.write(f"Title: {project.title}")
+    st.write(f"Description: {project.description}")
+    st.write(f"Prompt: {project.prompt}")
     
-    # Display the project details for confirmation
-    st.write(f"Title: {title}")
-    st.write(f"Description: {description}")
-    st.write(f"Prompt: {prompt}")
-    
-    if st.button("Save Project", key="create_project_final"):
-        new_project = st.session_state.temp_project
-        new_project.state = ProjectState.COMPLETE
-        # Reset the create project state
-        st.session_state.create_project_step = "GOAL_SET"
-        st.session_state.temp_project = None
-        st.session_state.project_created = True
-        return new_project
-    return None
+    st.button("Save Project", on_click=save_project)
+    st.button("Cancel", on_click=cancel_project_creation)
+
+def save_project():
+    project = st.session_state.temp_project
+    project.state = ProjectState.COMPLETE
+    projects_manager.save_project(project)
+    cleanup_project_creation()
+    st.success("Project created successfully!")
+
+def cancel_project_creation():
+    cleanup_project_creation()
+
+def cleanup_project_creation():
+    st.session_state.pop('create_project_step', None)
+    st.session_state.pop('temp_project', None)
+    st.session_state['current_view'] = 'project_list'
+
+if __name__ == "__main__":
+    create_project_workflow()
