@@ -26,7 +26,7 @@ def goal_set_step():
     st.write("Step 1: Set Project Goal")
     user_input = st.text_input("What information would you like to extract?", key="project_goal")
     
-    st.button("Next", on_click=setup_project, args=(user_input,), disabled=not user_input)
+    st.button("Next", on_click=setup_project, args=(user_input,))
 
 def setup_project(user_input):
     with st.spinner("Setting up project..."):
@@ -93,6 +93,7 @@ def save_project():
     project = st.session_state.temp_project
     project.state = ProjectState.COMPLETE
     projects_manager.save_project(project)
+    st.session_state['current_view'] = 'project_details'
     cleanup_project_creation()
     st.success("Project created successfully!")
 
@@ -102,7 +103,7 @@ def cancel_project_creation():
 def cleanup_project_creation():
     st.session_state.pop('create_project_step', None)
     st.session_state.pop('temp_project', None)
-    st.session_state['current_view'] = 'project_list'
+   
 
 if __name__ == "__main__":
     create_project_workflow()

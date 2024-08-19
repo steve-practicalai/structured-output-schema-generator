@@ -1,0 +1,69 @@
+Leslie Knope   08:58 Hey everyone, can you hear me okay?
+
+Ron Swanson   09:00 Yep, you're coming through loud and clear.
+
+April Ludgate   09:02 I'm here.
+
+Steve Green   09:03 Hey team, just give me a sec, I'm having some... oh, there we go. Camera's on now.
+
+Leslie Knope   09:07 Great! How's everyone doing? Did you all survive the weekend?
+
+Ron Swanson   09:10 Barely. My neighbor decided 6 AM on Sunday was the perfect time to start his lawn mower.
+
+Leslie Knope   09:15 Oh no, Ron! That's... that's rough. Well, um, should we get started? I think we have a lot to cover today.
+
+April Ludgate   09:22 Yeah, let's do it. I have another call at 10.
+
+Leslie Knope   09:25 Alright, so, um, first thing on the agenda is... Oh, wait, can everyone see my screen?
+
+Steve Green   09:31 Yep.
+
+Ron Swanson   09:31 Yes.
+
+April Ludgate   09:32 Mhm.
+
+Leslie Knope   09:33 Great, so, um, yeah. First up is the action item extraction feature. April, can you give us an update on that?
+
+April Ludgate   09:41 Sure, so we've made some progress on the, uh, the NLP model. It's now identifying about 80% of action items correctly in our test set.
+
+Steve Green   09:51 That's, that's good news. Have we, um, have we thought about how we're gonna handle those, you know, those edge cases? Like when action items are kind of... implied? Rather than, you know, explicitly stated?
+
+April Ludgate   10:05 Uh, good point, Steve. We haven't really... I mean, it's on our backlog for the next sprint, but we haven't tackled it yet.
+
+Ron Swanson   10:13 I've been talking to some potential clients and they're asking about, uh... What was it again? Oh right, if our system can play nice with their project management tools. Are we... Is that something we're doing?
+
+Leslie Knope   10:28 Oh, yeah, yeah. That's definitely on our roadmap, Ron. We're planning to start with, um, with Asana and Trello I think? April, do you have any idea on the timeline for that?
+
+April Ludgate   10:40 Uh, yeah, we're aiming to have the first integration ready for beta in about... I think it was three weeks? We'll need some help from Leslie on the design side to make sure it's not a total UX disaster.
+
+Leslie Knope   10:54 Right, of course. I can start working on the UI flow for the integration setup process this week. No problem.
+
+Steve Green   11:02 I have a... So, I'm a bit concerned about processing time. As we keep adding more features, are we still, you know, are we still hitting that goal of getting the action items extracted within a minute of the meeting ending?
+
+April Ludgate   11:18 Um, let me think... We're averaging around 45 seconds right now for a half-hour transcript. But yeah, Steve's right, we should probably keep an eye on that as we add stuff.
+
+Ron Swanson   11:30 The performance is... It's crucial. The potential clients, they keep hammering on about quick turnaround. They want to be able to send out those summaries and action items right after the calls.
+
+Leslie Knope   11:43 Noted, that's a good point. We should probably set up some kind of... some performance benchmarks or something? Steve, could you maybe take the lead on that?
+
+Steve Green   11:53 Yeah, sure, I can... I mean, I could set up a dashboard to track the processing times and maybe, you know, alert us if we start getting close to that 60-second mark.
+
+April Ludgate   12:04 Cool. Oh, one more thing - we need to figure out what we're doing about multiple languages. The international prospects keep asking about it.
+
+Ron Swanson   12:13 Yes, especially the... the European ones. They're always asking if we can pull action items from meetings in French and German and whatnot.
+
+Leslie Knope   12:22 Oh, right. That's... that's a pretty big feature, isn't it? April, could you maybe work with Steve to figure out what it would take to add that multi-language support? We might need to, um, to prioritize it for Q3 or something.
+
+April Ludgate   12:37 Sure, I guess. I'll set up a thing with Steve later this week to talk about the tech requirements and stuff.
+
+Leslie Knope   12:44 Great, that's great. Is there, um, is there anything else we need to talk about today?
+
+Ron Swanson   12:50 Nothing from sales, but I'll need those, uh, those integration timelines as soon as you can get them to me. To update the prospects, you know.
+
+Leslie Knope   12:59 Got it, yep. April will send out a project timeline by end of day. If there's nothing else, let's wrap this up and get back to work. Thanks, everyone!
+
+Steve Green   13:09 Sounds good. Thanks, team.
+
+April Ludgate   13:11 Bye.
+
+Ron Swanson   13:12 Goodbye.

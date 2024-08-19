@@ -1,3 +1,4 @@
+import csv
 import streamlit as st
 from util import FileState, ProjectsManager, ProjectState, TextFile
 from create_project import create_project_workflow
@@ -13,7 +14,7 @@ projects_manager = ProjectsManager()
 def main():
     setup_sidebar()
     
-    if st.session_state.get('current_view') == 'create_project':
+    if st.session_state.get('current_view') == 'create_project' or not projects_manager.projects:
         create_project_workflow()
     else:
         show_project_list()
@@ -119,10 +120,11 @@ def display_schema(project):
 
 def display_files(project):
     st.subheader("Files")
+
     st.file_uploader("Add files", accept_multiple_files=True, key="add_files", on_change=add_files_to_project, args=(project,))
 
     if project.files:
-        df = pd.DataFrame({"file_name": [file.file_name for file in project.files]})
+        df = pd.DataFrame({"file_name": [file.file_name for file in project.files], "state": [file.state.value for file in project.files]})
         st.dataframe(df, hide_index=True)
 
 def add_files_to_project(project):
@@ -133,18 +135,29 @@ def add_files_to_project(project):
             project.files.append(new_file)
         projects_manager.save_project(project)
         st.success(f"{len(st.session_state.add_files)} file(s) added successfully!")
-        st.session_state.add_files = None
 
 def display_results(project):
-    if project.state == ProjectState.COMPLETE and project.files and project.files[0].results:
+    finished_files = [file for file in project.files if file.state.value == "Finished"]
+    
+    if finished_files:
         st.subheader("Results")
-        df = pd.DataFrame([{field.name: field.value for field in result.data_fields} for result in project.files[0].results])
+        
+        all_results = []
+        for file in finished_files:
+            all_results.extend(file.results)
+        
+        df = pd.DataFrame([
+            {field.name: field.value for field in result.data_fields}
+            for result in all_results
+        ])
+        
         st.dataframe(df, hide_index=True)
         
-        csv = df.to_csv(index=False)
+        csvData = df.to_csv(index=False, quoting=csv.QUOTE_ALL, escapechar='\\',lineterminator=';',encoding='utf-8')
+        csvData = csvData.replace('\n', '\\n').replace('\r', '').replace(';', '\n')
         st.download_button(
             label="Download data as CSV",
-            data=csv,
+            data=csvData,
             file_name="extracted_data.csv",
             mime="text/csv",
         )

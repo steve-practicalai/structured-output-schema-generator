@@ -7,7 +7,7 @@ import logging
 logging.basicConfig(level=logging.ERROR)
 logger = logging.getLogger(__name__)
 
-from model import ResponseSchema
+from model import ResponseSchema, ResponseSchemaResults
 
 class ProjectState(Enum):
     GOAL_SET = "Goal Set"
@@ -25,7 +25,7 @@ class FileState(Enum):
     FINISHED = "Finished"
 
 class TextFile:
-    def __init__(self, file_name: str, contents: str, results: List[ResponseSchema] | None = None, state: FileState = FileState.NOT_STARTED):
+    def __init__(self, file_name: str, contents: str, results: List[ResponseSchemaResults] | None = None, state: FileState = FileState.NOT_STARTED):
         self.file_name = file_name
         self.contents = contents
         self.results = results if results is not None else []
@@ -44,7 +44,7 @@ class TextFile:
         return cls(
             file_name=data["file_name"],
             contents=data["contents"],
-            results=[ResponseSchema.from_dict(result) for result in data.get("results", [])],
+            results=[ResponseSchemaResults.from_dict(result) for result in data.get("results", [])],
             state=FileState(data.get("state", FileState.NOT_STARTED.value))
         )
 

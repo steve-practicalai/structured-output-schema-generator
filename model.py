@@ -39,13 +39,14 @@ class SchemaFieldResults(BaseModel):
     name: str
     description: str
     data_type: str
-    value: str | None = Field(default=None, exclude=True)
+    value: str 
 
     def to_dict(self):
         return {
             "name": self.name,
             "data_type": self.data_type,
-            "description": self.description
+            "description": self.description,
+            "value": self.value
         }
 
     @classmethod
@@ -53,7 +54,8 @@ class SchemaFieldResults(BaseModel):
         return cls(
             name=data["name"], 
             description=data["description"], 
-            data_type=data["data_type"]
+            data_type=data["data_type"],
+            value=data["value"]
         )
     
 class ResponseSchema(BaseModel):
@@ -86,7 +88,7 @@ class ResponseSchemaResults(BaseModel):
     @classmethod
     def from_dict(cls, data):
         return cls(
-            data_fields=[SchemaField.from_dict(field_data) for field_data in data["data_fields"]],
+            data_fields=[SchemaFieldResults.from_dict(field_data) for field_data in data["data_fields"]],
             confirmation_message=data["confirmation_message"]
         )
 
@@ -160,7 +162,7 @@ class LLMHelper:
     def extract_schema(self, file_contents, prompt) -> ResponseSchema:
         try:
             messages = [
-                {"role": "system", "content": "You are an AI assistant designed to create JSON schemas for structured data extraction. Limit data types to String, Number, Boolean, and Enum. Do not use nested structures (Object or Array)."},
+                {"role": "system", "content": "You are an AI assistant designed to create JSON schemas for structured data extraction. Limit data types to String. Do not use nested structures (Object or Array)."},
                 {"role": "user", "content": f"Create a JSON schema for extracting the following information: {prompt}\n\nHere's an example of the input:\n\n{file_contents}"}
             ]
 

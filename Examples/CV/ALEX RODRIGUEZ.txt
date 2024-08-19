@@ -1,0 +1,63 @@
+ORSON RODRIGUEZ
+Data Scientist & Machine Learning Engineer
+orson.rodriguez@email.com | (650) 123-4567 | Mountain View, CA
+github.com/orsonrodriguez | linkedin.com/in/orsonrodriguez
+
+PROFESSIONAL SUMMARY
+Innovative data scientist with 7+ years of experience in developing AI-driven solutions. Expertise in machine learning, deep learning, and natural language processing. Proven track record of implementing scalable data pipelines and predictive models that drive business growth.
+
+CORE COMPETENCIES
+• Machine Learning    • Neural Networks    • Big Data Analytics
+• Python, R, SQL      • TensorFlow, PyTorch• Cloud Computing (AWS, GCP)
+• Data Visualization  • A/B Testing        • Agile Methodologies
+
+PROFESSIONAL EXPERIENCE
+
+TECHINNOVATE INC., Mountain View, CA
+Senior Machine Learning Engineer | Jan 2020 - Present
+• Architected and deployed recommendation system, increasing user engagement by 40%
+• Led team of 5 data scientists in developing NLP model for sentiment analysis
+• Optimized data processing pipeline, reducing computation time by 60%
+
+DATAFORCE SOLUTIONS, San Francisco, CA
+Data Scientist | Mar 2017 - Dec 2019
+• Developed predictive maintenance model, saving company $2M annually
+• Collaborated with product team to integrate ML features into main product
+• Mentored junior data scientists and interns, improving team productivity
+
+INSIGHTFUL ANALYTICS, Boston, MA
+Junior Data Analyst | Sep 2015 - Feb 2017
+• Conducted exploratory data analysis for client projects
+• Created interactive dashboards using Tableau, enhancing data-driven decision making
+
+EDUCATION
+
+MASSACHUSETTS INSTITUTE OF TECHNOLOGY (MIT)
+M.S. in Computer Science, Specialization in Machine Learning | 2013 - 2015
+• Thesis: "Improving Generalization in Deep Reinforcement Learning"
+
+UNIVERSITY OF CALIFORNIA, BERKELEY
+B.S. in Statistics | 2009 - 2013
+• Minor in Computer Science
+• Graduated with Honors, GPA: 3.9/4.0
+
+SELECTED PROJECTS
+
+Autonomous Drone Navigation System
+• Implemented deep reinforcement learning algorithm for drone path planning
+• Achieved 95% accuracy in obstacle avoidance in simulated environments
+
+Real-time Face Recognition App
+• Developed mobile app using transfer learning on MobileNet architecture
+• Attained 98% accuracy with low latency on edge devices
+
+PUBLICATIONS & PRESENTATIONS
+
+• "Advances in Federated Learning for Privacy-Preserving AI" - IEEE Conference, 2022
+• "Explainable AI: Making Black Box Models Transparent" - AI Symposium, 2021
+
+ADDITIONAL INFORMATION
+
+• Languages: English (Native), Spanish (Fluent), Mandarin (Conversational)
+• Volunteer: STEM tutor for underprivileged high school students
+• Interests: Competitive programming, hiking, amateur astronomy
